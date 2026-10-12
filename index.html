@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#173b32">
+  <title>Mes routines de récitation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #21362f;
+      --muted: #6d7b73;
+      --green: #173b32;
+      --green-2: #285c4b;
+      --sage: #e5eee7;
+      --cream: #f8f7f2;
+      --paper: #fffefa;
+      --gold: #c79c56;
+      --line: #e5e7df;
+      --arabic-size: 2rem;
+      font-family: "DM Sans", system-ui, sans-serif;
+      background: var(--cream);
+      color: var(--ink);
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-width: 320px; line-height: 1.6; }
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+    .topbar {
+      height: 64px; display: flex; align-items: center; justify-content: space-between;
+      padding: 0 max(24px, calc((100vw - 1160px) / 2)); background: var(--green); color: white;
+    }
+    .brand { display: flex; gap: 11px; align-items: center; font-weight: 700; letter-spacing: .02em; }
+    .brand-mark { width: 29px; height: 29px; display: grid; place-items: center; border: 1px solid #a9c2af; border-radius: 50%; color: #e6c98e; }
+    .top-note { font-size: .82rem; color: #c9d8ce; }
+    main { width: min(100% - 40px, 1160px); margin: auto; }
+    .hero { padding: 54px 0 30px; display: grid; grid-template-columns: 1fr auto; gap: 30px; align-items: end; }
+    .eyebrow { color: var(--green-2); text-transform: uppercase; letter-spacing: .15em; font-size: .72rem; font-weight: 700; }
+    h1 { margin: 8px 0 10px; font-size: clamp(2rem, 4vw, 3.25rem); line-height: 1.13; letter-spacing: -.04em; color: var(--green); }
+    .hero p { max-width: 650px; margin: 0; color: var(--muted); }
+    .hero-note { max-width: 245px; padding: 15px 17px; border-left: 3px solid var(--gold); background: #f1eee4; color: #615845; font-size: .83rem; border-radius: 0 9px 9px 0; }
+    .controls { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; padding: 15px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .tabs { display: flex; flex-wrap: wrap; gap: 8px; }
+    .tab, .tool-btn {
+      border: 1px solid var(--line); border-radius: 999px; padding: 9px 15px; background: var(--paper); color: var(--ink);
+      font-weight: 600; font-size: .88rem; transition: .18s ease;
+    }
+    .tab[aria-selected="true"] { background: var(--green); border-color: var(--green); color: white; }
+    .tool-btn:hover, .tab:hover { border-color: var(--green-2); }
+    .tools { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; }
+    .tools-label { color: var(--muted); font-size: .8rem; margin-right: 3px; }
+    .tool-btn { padding: 7px 12px; font-size: .81rem; }
+    .display-toggle { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: .78rem; cursor: pointer; }
+    .display-toggle input { accent-color: var(--green-2); }
+    body.hide-phonetic .phonetic,
+    body.hide-translation .translation { display: none; }
+    body.hide-phonetic .reading-label:has(+ .phonetic),
+    body.hide-translation .reading-label:has(+ .translation) { display: none; }
+    .search-wrap { position: relative; }
+    .search-wrap input { width: min(230px, 45vw); border: 1px solid var(--line); border-radius: 999px; background: var(--paper); padding: 9px 14px 9px 35px; outline: none; }
+    .search-wrap input:focus { border-color: var(--green-2); box-shadow: 0 0 0 3px #285c4b1c; }
+    .search-icon { position: absolute; left: 13px; top: 8px; color: var(--muted); }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) 264px; gap: 28px; align-items: start; padding: 28px 0 70px; }
+    .layout > div, .routine-panel { min-width: 0; }
+    .routine-title { display: flex; justify-content: space-between; align-items: end; gap: 15px; margin-bottom: 18px; }
+    .routine-title h2 { margin: 0; color: var(--green); font-size: 1.65rem; letter-spacing: -.03em; }
+    .duration { color: var(--muted); font-size: .84rem; white-space: nowrap; }
+    .section { margin: 22px 0; }
+    .period-nav {
+      display: flex; gap: 8px; width: 100%; max-width: 100%; min-width: 0; overflow-x: auto; padding: 4px 0 12px;
+      scrollbar-width: thin; scrollbar-color: #c5d3c8 transparent;
+    }
+    .period-nav button {
+      flex: 0 0 auto; border: 1px solid var(--line); border-radius: 999px; padding: 8px 13px;
+      background: var(--paper); color: var(--ink); font-size: .8rem; font-weight: 600;
+      transition: background .18s ease, color .18s ease, border-color .18s ease;
+    }
+    .period-nav button:hover { border-color: var(--green-2); }
+    .period-nav button[aria-pressed="true"] { background: var(--green); color: white; border-color: var(--green); }
+    .period-status { margin: 0 0 12px; color: var(--muted); font-size: .78rem; }
+    .section-heading { display: flex; align-items: center; gap: 11px; margin: 0 0 12px; color: var(--green); font-size: 1.12rem; }
+    .section-num { display: grid; place-items: center; flex: 0 0 29px; height: 29px; border-radius: 50%; background: var(--sage); color: var(--green-2); font-size: .8rem; font-weight: 700; }
+    .card { background: var(--paper); border: 1px solid var(--line); border-radius: 13px; padding: 20px 22px; margin: 10px 0; box-shadow: 0 3px 14px #243c2c08; }
+    .card-head { display: flex; align-items: start; justify-content: space-between; gap: 12px; }
+    .card h3 { margin: 0; font-size: 1rem; color: var(--ink); }
+    .meta { margin: 3px 0 0; color: var(--muted); font-size: .8rem; }
+    .source { display: inline-block; padding: 3px 9px; border-radius: 999px; background: #f0f1eb; color: #68766b; font-size: .72rem; white-space: nowrap; }
+    .arabic {
+      margin: 17px 0 12px; color: #173b32; direction: rtl; text-align: right; font-family: "Amiri", "Noto Naskh Arabic", "Traditional Arabic", serif;
+      font-size: var(--arabic-size); line-height: 2; unicode-bidi: plaintext;
+    }
+    .reading-label { display: block; margin: 13px 0 2px; color: var(--green-2); font-size: .69rem; letter-spacing: .1em; text-transform: uppercase; font-weight: 700; }
+    .phonetic { margin: 0; color: #4d5d54; font-size: .94rem; }
+    .translation { margin: 0; color: #58635c; font-size: .92rem; }
+    .card-actions { display: flex; gap: 8px; margin-top: 13px; }
+    .mini-btn { border: 0; border-radius: 7px; background: #eff3ef; color: var(--green-2); padding: 6px 10px; font-size: .78rem; font-weight: 600; }
+    .mini-btn:hover { background: var(--sage); }
+    .plain-item { display: flex; gap: 12px; padding: 12px 15px; border-radius: 10px; background: var(--paper); border: 1px solid var(--line); margin: 8px 0; }
+    .plain-item p { margin: 0; }
+    .plain-item .bullet { color: var(--gold); font-weight: 700; }
+    .callout { padding: 16px 18px; margin: 14px 0; border-radius: 10px; background: #f3f0e7; color: #5f584a; font-size: .89rem; }
+    .callout strong { color: #4e493d; }
+    .track {
+      position: sticky; top: 18px; padding: 19px; border: 1px solid var(--line); border-radius: 14px; background: var(--paper);
+      box-shadow: 0 6px 24px #243c2c08;
+    }
+    .track h3 { margin: 0 0 4px; font-size: 1rem; color: var(--green); }
+    .track p { margin: 0 0 14px; color: var(--muted); font-size: .8rem; }
+    .progress { height: 6px; overflow: hidden; margin-bottom: 14px; border-radius: 99px; background: #edf0e9; }
+    .progress > span { display: block; width: 0; height: 100%; border-radius: inherit; background: var(--green-2); transition: width .2s; }
+    .checklist { display: grid; gap: 5px; }
+    .check-row { display: flex; align-items: center; gap: 9px; padding: 7px 0; font-size: .85rem; cursor: pointer; }
+    .check-row input { accent-color: var(--green-2); width: 16px; height: 16px; }
+    .check-row:has(input:checked) span { color: #839087; text-decoration: line-through; }
+    .reset { margin-top: 12px; border: 0; padding: 0; color: var(--muted); background: transparent; text-decoration: underline; font-size: .76rem; }
+    .week { margin-top: 25px; }
+    .week h3 { margin-bottom: 4px; }
+    .week p { margin-bottom: 10px; }
+    .week-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+    .day { text-align: center; font-size: .68rem; color: var(--muted); }
+    .day input { display: block; margin: 5px auto; accent-color: var(--green-2); }
+    .notice { font-size: .76rem; color: var(--muted); margin-top: 12px !important; }
+    .hidden { display: none !important; }
+    .empty { display: none; padding: 22px; text-align: center; color: var(--muted); }
+    footer { padding: 20px 0 35px; border-top: 1px solid var(--line); color: var(--muted); font-size: .79rem; }
+    @media (max-width: 800px) {
+      .layout { grid-template-columns: 1fr; }
+      .track { position: static; grid-row: 1; }
+      .hero { grid-template-columns: 1fr; padding-top: 38px; }
+      .hero-note { max-width: none; }
+    }
+    @media (max-width: 520px) {
+      main { width: min(100% - 26px, 1160px); }
+      .topbar { padding: 0 14px; }
+      .top-note { display: none; }
+      .controls { align-items: flex-start; }
+      .tools { width: 100%; }
+      .search-wrap { flex: 1; }
+      .search-wrap input { width: 100%; }
+      .card { padding: 17px 15px; }
+      .source { white-space: normal; text-align: right; }
+      .arabic { font-size: calc(var(--arabic-size) * .9); }
+    }
+    @media print {
+      .topbar, .controls, .track, .period-nav, .period-status, .card-actions, footer { display: none !important; }
+      body, main { background: white; width: 100%; }
+      .layout { display: block; padding: 0; }
+      .hero { padding: 15px 0; }
+      .card { break-inside: avoid; box-shadow: none; }
+      .routine-panel.hidden { display: block !important; }
+      body.hide-phonetic .phonetic,
+      body.hide-translation .translation,
+      body.hide-phonetic .reading-label:has(+ .phonetic),
+      body.hide-translation .reading-label:has(+ .translation) { display: initial; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark" aria-hidden="true">✦</span> Rituels & récitations</div>
+    <div class="top-note">Une lecture simple, à votre rythme</div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div>
+        <div class="eyebrow">Guide de lecture quotidien</div>
+        <h1>Des mots à lire,<br>un moment à partager.</h1>
+        <p>Deux routines réunies dans un guide clair. Chaque texte est présenté dans l’ordre : arabe, phonétique, puis sens en français. Prenez votre temps et adaptez la lecture à votre situation.</p>
+      </div>
+      <div class="hero-note"><strong>À garder en tête</strong><br>Ces récitations accompagnent la pratique spirituelle et ne remplacent pas un avis ou un suivi médical.</div>
+    </section>
+
+    <nav class="controls" aria-label="Outils de lecture">
+      <div class="tabs" role="tablist" aria-label="Choisir une routine">
+        <button class="tab" id="tab-fils" role="tab" aria-selected="true" aria-controls="routine-fils">Invocations pour mon fils</button>
+        <button class="tab" id="tab-roqya" role="tab" aria-selected="false" aria-controls="routine-roqya">Routine de roqya</button>
+      </div>
+      <div class="tools">
+        <span class="tools-label">Arabe</span>
+        <button class="tool-btn" id="smaller" aria-label="Réduire la taille du texte arabe">A−</button>
+        <button class="tool-btn" id="larger" aria-label="Agrandir le texte arabe">A+</button>
+        <label class="display-toggle"><input id="hide-phonetic" type="checkbox"> Masquer la phonétique</label>
+        <label class="display-toggle"><input id="hide-translation" type="checkbox"> Masquer la traduction</label>
+        <button class="tool-btn" id="print">Imprimer</button>
+        <label class="search-wrap"><span class="search-icon" aria-hidden="true">⌕</span><input id="search" type="search" placeholder="Rechercher dans la routine…" aria-label="Rechercher dans la routine"></label>
+      </div>
+    </nav>
+
+    <div class="layout">
+      <div>
+        <article class="routine-panel" id="routine-fils" role="tabpanel" aria-labelledby="tab-fils">
+          <div class="routine-title"><h2>Invocations pour mon fils</h2><span class="duration">Environ 10 min par jour</span></div>
+          <div class="callout"><strong>Comment lire cette routine.</strong> Les formules sont formulées au masculin singulier. Si votre fils est près de vous, vous pouvez poser la main sur sa tête en récitant, ou faire l’invocation à distance en le nommant dans votre cœur. Les références coraniques et invocations citées sont développées ci-dessous afin d’éviter de vous renvoyer vers une page externe.</div>
+
+          <nav class="period-nav" aria-label="Périodes de la routine" data-period-nav>
+            <button type="button" data-period-filter="all" aria-pressed="true">Tout afficher</button>
+            <button type="button" data-period-filter="morning" aria-pressed="false">Matin</button>
+            <button type="button" data-period-filter="after-prayer" aria-pressed="false">Après une prière</button>
+            <button type="button" data-period-filter="evening" aria-pressed="false">Soir</button>
+            <button type="button" data-period-filter="bedtime" aria-pressed="false">Avant de dormir</button>
+            <button type="button" data-period-filter="as-needed" aria-pressed="false">Au besoin</button>
+            <button type="button" data-period-filter="remedies" aria-pressed="false">Remèdes & précautions</button>
+            <button type="button" data-period-filter="other" aria-pressed="false">Autres repères</button>
+          </nav>
+          <p class="period-status" aria-live="polite"></p>
+
+          <section class="section" data-period="morning">
+            <h3 class="section-heading"><span class="section-num">1</span>Le matin, au réveil ou avant l’école <small class="duration">≈ 3 min</small></h3>
+            <div class="card searchable">
+              <div class="card-head"><div><h3>Protection</h3><p class="meta">3 fois, la main sur sa tête</p></div><span class="source">Invocation de protection · Bukhari 3371</span></div>
+              <p class="arabic" lang="ar" dir="rtl">أُعِيذُكَ بِكَلِمَاتِ اللَّهِ التَّامَّةِ مِنْ كُلِّ شَيْطَانٍ وَهَامَّةٍ وَمِنْ كُلِّ عَيْنٍ لَامَّةٍ</p>
+              <span class="reading-label">Phonétique</span><p class="phonetic">U'îdhuka bi-kalimâti Llâhi t-tâmmati min kulli chaytânin wa hâmmah, wa min kulli 'aynin lâmmah.</p>
+              <span class="reading-label">Sens en français</span><p class="translation">« Je te mets sous la protection des paroles parfaites d’Allah contre tout diable, toute bête nuisible et tout œil malveillant. »</p>
+              <div class="card-actions"><button class="mini-btn copy" type="button">Copier l’arabe</button></div>
+            </div>
+            <div class="card searchable">
+              <div class="card-head"><div><h3>Al-Ikhlâs, Al-Falaq et An-Nâs</h3><p class="meta">3 fois chacune, puis soufflez doucement sur lui</p></div><span class="source">Sourates 112, 113 et 114</span></div>
+              <details class="full-text"><summary class="mini-btn">Afficher les trois sourates en entier</summary>
+                <div class="surah">
+                  <p class="arabic" lang="ar" dir="rtl">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ<br>قُلْ هُوَ اللَّهُ أَحَدٌ ۝ اللَّهُ الصَّمَدُ ۝ لَمْ يَلِدْ وَلَمْ يُولَدْ ۝ وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ</p>
+                  <span class="reading-label">Al-Ikhlâs · phonétique</span><p class="phonetic">Bismi Llâhi r-Rahmâni r-Rahîm. Qul huwa Llâhu ahad. Allâhu s-samad. Lam yalid wa lam yûlad. Wa lam yakun lahu kufuwan ahad.</p>
+                  <span class="reading-label">Sens en français</span><p class="translation">Au nom d’Allah, le Tout Miséricordieux, le Très Miséricordieux. Dis : « Il est Allah, Unique. Allah, Celui dont toute la création a besoin. Il n’a pas engendré et n’a pas été engendré. Et nul n’est égal à Lui. »</p>
+                </div>
+                <div class="surah">
+                  <p class="arabic" lang="ar" dir="rtl">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ<br>قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ ۝ مِن شَرِّ مَا خَلَقَ ۝ وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ ۝ وَمِن شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ ۝ وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ</p>
+                  <span class="reading-label">Al-Falaq · phonétique</span><p class="phonetic">Bismi Llâhi r-Rahmâni r-Rahîm. Qul a'ûdhu bi-rabbi l-falaq. Min sharri mâ khalaq. Wa min sharri ghâsiqin idhâ waqab. Wa min sharri n-naffâthâti fi l-'uqad. Wa min sharri hâsidin idhâ hasad.</p>
+                  <span class="reading-label">Sens en français</span><p class="translation">Dis : « Je cherche protection auprès du Seigneur de l’aube naissante, contre le mal des êtres qu’Il a créés, contre le mal de l’obscurité quand elle s’approfondit, contre le mal de celles qui soufflent sur les nœuds, et contre le mal de l’envieux quand il envie. »</p>
+                </div>
+                <div class="surah">
+                  <p class="arabic" lang="ar" dir="rtl">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ<br>قُلْ أَعُوذُ بِرَبِّ النَّاسِ ۝ مَلِكِ النَّاسِ ۝ إِلَٰهِ النَّاسِ ۝ مِن شَرِّ الْوَسْوَاسِ الْخَنَّاسِ ۝ الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ ۝ مِنَ الْجِنَّةِ وَالنَّاسِ</p>
+                  <span class="reading-label">An-Nâs · phonétique</span><p class="phonetic">Bismi Llâhi r-Rahmâni r-Rahîm. Qul a'ûdhu bi-rabbi n-nâs. Maliki n-nâs. Ilâhi n-nâs. Min sharri l-waswâsi l-khannâs. Alladhî yuwaswisu fî sudûri n-nâs. Mina l-jinnati wa n-nâs.</p>
+                  <span class="reading-label">Sens en français</span><p class="translation">Dis : « Je cherche protection auprès du Seigneur des hommes, du Souverain des hommes, Dieu des hommes, contre le mal du mauvais conseiller furtif, qui souffle le mal dans les poitrines des hommes, qu’il soit parmi les djinns ou les hommes. »</p>
+                </div>
+              </details>
+            </div>
+            <div class="card searchable">
+              <div class="card-head"><div><h3>Bénédiction</h3><p class="meta">1 fois</p></div><span class="source">Invocation citée · Bukhari 6334</span></div>
+              <p class="arabic" lang="ar" dir="rtl">اللَّهُمَّ بَارِكْ لَهُ فِيمَا أَعْطَيْتَهُ</p>
+              <span class="reading-label">Phonétique</span><p class="phonetic">Allahumma bârik lahu fîmâ a'taytahu.</p>
+              <span class="reading-label">Sens en français</span><p class="translation">« Ô Allah, bénis-le dans ce que Tu lui as donné. »</p>
+              <div class="card-actions"><button class="mini-btn copy" type="button">Copier l’arabe</button></div>
+            </div>
+          </section>
+
+          <section class="section" data-period="after-prayer">
+            <h3 class="section-heading"><span class="section-num">2</span>Après une prière de la journée <small class="duration">≈ 3 min</small></h3>
+            <div class="card searchable">
+              <div class="card-head"><div><h3>Science et compréhension</h3><p class="meta">3 fois</p></div><span class="source">Invocation citée · Bukhari 143</span></div>
+              <p class="arabic" lang="ar" dir="rtl">اللَّهُمَّ فَقِّهْهُ فِي الدِّينِ وَعَلِّمْهُ التَّأْوِيلَ</p>
+              <span class="reading-label">Phonétique</span><p class="phonetic">Allahumma faqqihhu fid-dîn wa 'allimhu t-ta'wîl.</p>
+              <span class="reading-label">Sens en français</span><p class="translation">« Ô Allah, donne-lui la compréhension de la religion et enseigne-lui l’interprétation. »</p>
+              <div class="card-actions"><button class="mini-btn copy" type="button">Copier l’arabe</button></div>
+            </div>
+            <div class="card searchable">
+              <div class="card-head"><div><h3>Prière et descendance</h3><p class="meta">1 fois · Coran, Ibrâhîm 14:40</p></div><span class="source">Verset complet · Coran 14:40</span></div>
+              <p class="arabic" lang="ar" dir="rtl">رَبِّ اجْعَلْنِي مُقِيمَ الصَّلَاةِ وَمِنْ ذُرِّيَّتِي رَبَّنَا وَتَقَبَّلْ دُعَاءِ</p>
+              <span class="reading-label">Phonétique</span><p class="phonetic">Rabbi j'alnî muqîma s-salâti wa min dhurriyyatî, Rabbanâ wa taqabbal du'â'.</p>
+              <span class="reading-label">Sens en français</span><p class="translation">« Seigneur, fais que j’accomplisse assidûment la prière, ainsi que ma descendance. Seigneur, accepte mon invocation. »</p>
+              <div class="card-actions"><button class="mini-btn copy" type="button">Copier l’arabe</button></div>
+            </div>
+            <div class="card searchable">
+              <div class="card-head"><div><h3>Vertu de la descendance</h3><p class="meta">1 fois · Coran, Al-Ahqâf 46:15</p></div><span class="source">Verset complet · Coran 46:15</span></div>
+              <p class="arabic" lang="ar" dir="rtl">وَوَصَّيْنَا الْإِنْسَانَ بِوَالِدَيْهِ إِحْسَانًا ۖ حَمَلَتْهُ أُمُّهُ كُرْهًا وَوَضَعَتْهُ كُرْهًا ۖ وَحَمْلُهُ وَفِصَالُهُ ثَلَاثُونَ شَهْرًا ۚ حَتَّىٰ إِذَا بَلَغَ أَشُدَّهُ وَبَلَغَ أَرْبَعِينَ سَنَةً قَالَ رَبِّ أَوْزِعْنِي أَنْ أَشْكُرَ نِعْمَتَكَ الَّتِي أَنْعَمْتَ عَلَيَّ وَعَلَىٰ وَالِدَيَّ وَأَنْ أَعْمَلَ صَالِحًا تَرْضَاهُ وَأَصْلِحْ لِي فِي ذُرِّيَّتِي إِنِّي تُبْتُ إِلَيْكَ وَإِنِّي مِنَ الْمُسْلِمِينَ</p>
+              <span class="reading-label">Phonétique</span><p class="phonetic">Wa wassaynâ l-insâna bi-wâlidayhi ihsânâ. Hamalat-hu ummuhu kurhan wa wada'at-hu kurhâ. Wa hamluhu wa fisâluhu thalâthûna shahrâ. Hattâ idhâ balagha ashuddahu wa balagha arba'îna sanatan qâla rabbi awzi'nî an ashkura ni'mataka allatî an'amta 'alayya wa 'alâ wâlidayya wa an a'mala sâlihan tardâhu wa aslih lî fî dhurriyyatî innî tubtu ilayka wa innî mina l-muslimîn.</p>
+              <span class="reading-label">Sens en français</span><p class="translation">« Nous avons commandé à l’homme la bienfaisance envers ses père et mère. Sa mère l’a porté avec peine et l’a accouché avec peine ; sa gestation et son sevrage durent trente mois. Puis, lorsqu’il atteint sa maturité et l’âge de quarante ans, il dit : “Seigneur, inspire-moi la gratitude pour le bienfait dont Tu m’as comblé, ainsi que mes parents, et pour que j’accomplisse une bonne œuvre que Tu agrées. Rends ma descendance vertueuse. Je me repens à Toi et je suis du nombre des soumis.” »</p>
+              <div class="card-actions"><button class="mini-btn copy" type="button">Copier l’arabe</button></div>
+            </div>
+            <div class="card searchable">
+              <div class="card-head"><div><h3>Joie des yeux</h3><p class="meta">1 fois · Coran, Al-Furqân 25:74</p></div><span class="source">Verset complet · Coran 25:74</span></div>
+              <p class="arabic" lang="ar" dir="rtl">رَبَّنَا هَبْ لَنَا مِنْ أَزْوَاجِنَا وَذُرِّيَّاتِنَا قُرَّةَ أَعْيُنٍ وَاجْعَلْنَا لِلْمُتَّقِينَ إِمَامًا</p>
+              <span class="reading-label">Phonétique</span><p class="phonetic">Rabbanâ hab lanâ min azwâjinâ wa dhurriyyâtinâ qurrata a'yunin waj'alnâ lil-muttaqîna imâmâ.</p>
+              <span class="reading-label">Sens en français</span><p class="translation">« Seigneur, accorde-nous, en nos épouses et nos descendants, la joie des yeux, et fais de nous un modèle pour les pieux. »</p>
+              <div class="card-actions"><button class="mini-btn copy" type="button">Copier l’arabe</button></div>
+            </div>
+          </section>
+
+          <section class="section" data-period="evening">
+            <h3 class="section-heading"><span class="section-num">3</span>Le soir, après Maghrib <small class="duration">≈ 2 min</small></h3>
+            <div class="plain-item searchable"><span class="bullet">•</span><p><strong>Protection :</strong> récitez 3 fois l’invocation de protection du matin.</p></div>
+            <div class="card searchable">
+              <div class="card-head"><div><h3>Âyat al-Kursî</h3><p class="meta">1 fois · Coran, Al-Baqara 2:255</p></div><span class="source">Verset complet</span></div>
+              <p class="arabic" lang="ar" dir="rtl">اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ ۚ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ ۚ لَهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ ۗ مَنْ ذَا الَّذِي يَشْفَعُ عِنْدَهُ إِلَّا بِإِذْنِهِ ۚ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ ۖ وَلَا يُحِيطُونَ بِشَيْءٍ مِنْ عِلْمِهِ إِلَّا بِمَا شَاءَ ۚ وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْأَرْضَ ۖ وَلَا يَئُودُهُ حِفْظُهُمَا ۚ وَهُوَ الْعَلِيُّ الْعَظِيمُ</p>
+              <span class="reading-label">Phonétique</span><p class="phonetic">Allâhu lâ ilâha illâ huwa l-hayyu l-qayyûm. Lâ ta'khudhuhu sinatun wa lâ nawm. Lahu mâ fi s-samâwâti wa mâ fi l-ard. Man dhâ lladhî yashfa'u 'indahu illâ bi-idhnih. Ya'lamu mâ bayna aydîhim wa mâ khalfahum. Wa lâ yuhîtûna bi-shay'in min 'ilmihi illâ bimâ shâ'. Wasi'a kursiyyuhu s-samâwâti wa l-ard. Wa lâ ya'ûduhu hifzuhumâ wa huwa l-'aliyyu l-'azîm.</p>
+              <span class="reading-label">Sens en français</span><p class="translation">« Allah ! Point de divinité à part Lui, le Vivant, Celui qui subsiste par Lui-même. Ni somnolence ni sommeil ne Le saisissent. À Lui appartient tout ce qui est dans les cieux et sur la terre. Qui peut intercéder auprès de Lui sans Sa permission ? Il connaît leur passé et leur futur. Et, de Sa science, ils n’embrassent que ce qu’Il veut. Son Trône déborde les cieux et la terre, dont la garde ne Lui coûte aucune peine. Et Il est le Très-Haut, le Très-Grand. »</p>
+              <div class="card-actions"><button class="mini-btn copy" type="button">Copier l’arabe</button></div>
+            </div>
+          </section>
+
+          <section class="section" data-period="bedtime">
+            <h3 class="section-heading"><span class="section-num">4</span>Au coucher <small class="duration">≈ 2 min</small></h3>
+            <div class="plain-item searchable"><span class="bullet">1</span><p>Récitez Al-Ikhlâs, Al-Falaq et An-Nâs dans vos paumes, soufflez légèrement, puis passez les mains sur sa tête, son visage et son corps. Répétez 3 fois. <strong>Les trois sourates complètes sont affichées dans la section du matin.</strong></p></div>
+            <div class="plain-item searchable"><span class="bullet">2</span><p>Récitez Âyat al-Kursî une fois ; le texte complet est affiché dans la section du soir.</p></div>
+            <div class="plain-item searchable"><span class="bullet">3</span><p>Terminez par une invocation libre, en arabe ou en français, en le nommant.</p></div>
+          </section>
+
+          <section class="section" data-period="as-needed">
+            <h3 class="section-heading"><span class="section-num">5</span>S’il est malade ou a mal</h3>
+            <div class="card searchable">
+              <div class="card-head"><div><h3>Invocation de guérison</h3><p class="meta">Posez la main droite sur lui</p></div><span class="source">Invocation citée · Bukhari 5743</span></div>
+              <p class="arabic" lang="ar" dir="rtl">اللَّهُمَّ رَبَّ النَّاسِ، أَذْهِبِ الْبَأْسَ، اشْفِهِ أَنْتَ الشَّافِي، لَا شِفَاءَ إِلَّا شِفَاؤُكَ، شِفَاءً لَا يُغَادِرُ سَقَمًا</p>
+              <span class="reading-label">Phonétique</span><p class="phonetic">Allahumma Rabban-nâs, adh-hibil-ba's, ichfihi anta ach-Châfî, lâ chifâ'a illâ chifâ'uk, chifâ'an lâ yughâdiru saqamâ.</p>
+              <span class="reading-label">Sens en français</span><p class="translation">« Ô Allah, Seigneur des hommes, dissipe le mal et guéris-le. Tu es le Guérisseur ; il n’y a de guérison que celle que Tu accordes, une guérison qui ne laisse aucune maladie. »</p>
+              <div class="card-actions"><button class="mini-btn copy" type="button">Copier l’arabe</button></div>
+            </div>
+            <div class="card searchable">
+              <div class="card-head"><div><h3>Invocation à répéter 7 fois</h3></div><span class="source">Abou Daoud 3106</span></div>
+              <p class="arabic" lang="ar" dir="rtl">أَسْأَلُ اللَّهَ الْعَظِيمَ رَبَّ الْعَرْشِ الْعَظِيمِ أَنْ يَشْفِيَكَ</p>
+              <span class="reading-label">Phonétique</span><p class="phonetic">As'alu Llâha al-'Azîm, Rabba al-'archi al-'azîm, an yachfiyak.</p>
+              <span class="reading-label">Sens en français</span><p class="translation">« Je demande à Allah l’Immense, Seigneur du Trône immense, de te guérir. »</p>
+              <div class="card-actions"><button class="mini-btn copy" type="button">Copier l’arabe</button></div>
+            </div>
+            <div class="plain-item searchable"><span class="bullet">•</span><p>Ajoutez Al-Fâtiha en soufflant sur l’endroit douloureux. Consultez également un médecin ou un pédiatre.</p></div>
+          </section>
+          <section class="section" data-period="other">
+            <h3 class="section-heading"><span class="section-num">6</span>Un moment fort de la semaine ou de la nuit</h3>
+            <div class="plain-item searchable"><span class="bullet">•</span><p>Dans la prosternation, dans le dernier tiers de la nuit ou un jour de jeûne, faites une invocation longue et personnelle pour lui : sa foi, sa santé, ses études, ses amis et son futur foyer.</p></div>
+          </section>
+          <section class="section" data-period="other">
+            <h3 class="section-heading">Adapter selon l’âge</h3>
+            <div class="card searchable">
+              <p><strong>0 à 3 ans :</strong> vous récitez tout sur lui ; il écoute.</p>
+              <p><strong>4 à 6 ans :</strong> vous récitez puis il répète ; il apprend Al-Ikhlâs, Al-Falaq et An-Nâs.</p>
+              <p><strong>7 ans et plus :</strong> gardez les invocations de protection ; il récite ses sourates du soir et du coucher, puis apprend Âyat al-Kursî.</p>
+              <p>Faites de ce moment un moment de tendresse : caresse sur la tête, voix douce, jamais de contrainte.</p>
+            </div>
+          </section>
+          <section class="section" data-period="remedies">
+            <h3 class="section-heading">Précautions et conseils</h3>
+            <div class="plain-item searchable"><span class="bullet">!</span><p><strong>Miel :</strong> jamais avant l’âge d’un an (risque de botulisme infantile). Après un an, une petite cuillère suffit.</p></div>
+            <div class="plain-item searchable"><span class="bullet">!</span><p><strong>Dattes Ajwa :</strong> dénoyautez-les et coupez-les en petits morceaux pour les petits, en raison du risque d’étouffement.</p></div>
+            <div class="plain-item searchable"><span class="bullet">!</span><p><strong>Huile de nigelle :</strong> demandez l’avis du pédiatre avant d’en donner à un enfant.</p></div>
+            <div class="plain-item searchable"><span class="bullet">•</span><p>Ne faites jamais d’invocation contre votre fils, même sous la colère. Dites plutôt :</p></div>
+            <div class="card searchable">
+              <p class="arabic" lang="ar" dir="rtl">اللَّهُمَّ اهْدِهِ</p>
+              <span class="reading-label">Phonétique</span><p class="phonetic">Allahumma hdihi.</p>
+              <span class="reading-label">Sens en français</span><p class="translation">« Ô Allah, guide-le. »</p>
+              <div class="card-actions"><button class="mini-btn copy" type="button">Copier l’arabe</button></div>
+            </div>
+          </section>
+        </article>
+
+        <article class="routine-panel hidden" id="routine-roqya" role="tabpanel" aria-labelledby="tab-roqya">
+          <div class="routine-title"><h2>Routine quotidienne de roqya</h2><span class="duration">15 à 20 min par jour</span></div>
+          <div class="callout"><strong>Information importante.</strong> Cette routine répartit des récitations sur trois moments. Elle accompagne le suivi médical, elle ne le remplace pas. Les remèdes alimentaires indiqués sont facultatifs : demandez conseil à un professionnel de santé selon votre situation.</div>
+          <nav class="period-nav" aria-label="Périodes de la routine" data-period-nav>
+            <button type="button" data-period-filter="all" aria-pressed="true">Tout afficher</button>
+            <button type="button" data-period-filter="morning" aria-pressed="false">Matin</button>
+            <button type="button" data-period-filter="after-prayer" aria-pressed="false">Après une prière</button>
+            <button type="button" data-period-filter="evening" aria-pressed="false">Soir</button>
+            <button type="button" data-period-filter="bedtime" aria-pressed="false">Avant de dormir</button>
+            <button type="button" data-period-filter="as-needed" aria-pressed="false">Au besoin</button>
+            <button type="button" data-period-filter="remedies" aria-pressed="false">Remèdes</button>
+            <button type="button" data-period-filter="other" aria-pressed="false">Conseils</button>
+          </nav>
+          <p class="period-status" aria-live="polite"></p>
+
+          <section class="section" data-period="remedies">
+            <h3 class="section-heading"><span class="section-num">•</span>Remèdes facultatifs <small class="duration">Le matin</small></h3>
+            <div class="plain-item searchable"><span class="bullet">•</span><p>7 dattes Ajwa ; une cuillère à café d’huile de nigelle (ou une pincée de graines avec du miel) ; une cuillère de miel dans un verre d’eau. Tenez compte des allergies, traitements et précautions de santé. Ces remèdes sont facultatifs.</p></div>
+          </section>
+          <section class="section" data-period="after-prayer">
+            <h3 class="section-heading"><span class="section-num">+</span>Après une prière <small class="duration">Facultatif</small></h3>
+            <div class="callout searchable"><strong>Repère :</strong> la routine de roqya fournie ne prescrit pas de récitation supplémentaire après chaque prière. Si vous souhaitez prendre un moment d’invocation, vous pouvez reprendre une invocation déjà présentée dans cette routine ; conservez les répétitions indiquées et n’en ajoutez pas de nouvelles au titre d’une pratique rapportée.</div>
+          </section>
+          <section class="section" data-period="morning">
+            <h3 class="section-heading"><span class="section-num">1</span>Le matin, après Fajr <small class="duration">≈ 8 min</small></h3>
+            <div class="plain-item searchable"><span class="bullet">1</span><p>Al-Fâtiha une fois. <strong>Texte complet ci-dessous.</strong></p></div>
+            <div class="card searchable">
+              <div class="card-head"><div><h3>Al-Fâtiha</h3><p class="meta">Coran, sourate 1 · à réciter en entier</p></div><span class="source">Texte complet · Bukhari 5736</span></div>
+              <p class="arabic" lang="ar" dir="rtl">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ ۝ الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ ۝ الرَّحْمَٰنِ الرَّحِيمِ ۝ مَالِكِ يَوْمِ الدِّينِ ۝ إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ ۝ اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ ۝ صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ</p>
+              <span class="reading-label">Phonétique</span><p class="phonetic">Bismi Llâhi r-Rahmâni r-Rahîm. Al-hamdu li-Llâhi rabbi l-'âlamîn. Ar-Rahmâni r-Rahîm. Mâliki yawmi d-dîn. Iyyâka na'budu wa iyyâka nasta'în. Ihdinâ s-sirâta l-mustaqîm. Sirâta lladhîna an'amta 'alayhim, ghayri l-maghdûbi 'alayhim wa la d-dâllîn.</p>
+              <span class="reading-label">Sens en français</span><p class="translation">Au nom d’Allah, le Tout Miséricordieux, le Très Miséricordieux. Louange à Allah, Seigneur des mondes, le Tout Miséricordieux, le Très Miséricordieux, Maître du Jour de la rétribution. C’est Toi seul que nous adorons, et c’est Toi seul dont nous implorons secours. Guide-nous dans le droit chemin, le chemin de ceux que Tu as comblés de faveurs, non pas de ceux qui ont encouru Ta colère, ni des égarés.</p>
+              <div class="card-actions"><button class="mini-btn copy" type="button">Copier l’arabe</button></div>
+            </div>
+            <div class="plain-item searchable"><span class="bullet">2</span><p>Âyat al-Kursî (Coran 2:255), une fois. <strong>Texte complet dans la routine « Invocations pour mon fils », section du soir.</strong></p></div>
+            <div class="plain-item searchable"><span class="bullet">3</span><p>Al-Ikhlâs, Al-Falaq et An-Nâs, 3 fois chacune. <strong>Textes complets dans la routine « Invocations pour mon fils », section du matin.</strong></p></div>
+            <div class="card searchable">
+              <div class="card-head"><div><h3>Invocation pour la santé</h3><p class="meta">3 fois</p></div><span class="source">Invocation citée · Abou Daoud 5090</span></div>
+              <p class="arabic" lang="ar" dir="rtl">اللَّهُمَّ عَافِنِي فِي بَدَنِي، اللَّهُمَّ عَافِنِي فِي سَمْعِي، اللَّهُمَّ عَافِنِي فِي بَصَرِي، لَا إِلَهَ إِلَّا أَنْتَ</p>
+              <span class="reading-label">Phonétique</span><p class="phonetic">Allahumma 'âfinî fî badanî, Allahumma 'âfinî fî sam'î, Allahumma 'âfinî fî basarî, lâ ilâha illâ anta.</p>
+              <span class="reading-label">Sens en français</span><p class="translation">« Ô Allah, accorde la santé à mon corps, à mon ouïe et à ma vue. Il n’y a de divinité que Toi. »</p>
+              <div class="card-actions"><button class="mini-btn copy" type="button">Copier l’arabe</button></div>
+            </div>
+            <div class="card searchable">
+              <div class="card-head"><div><h3>Contre le souci et la tristesse</h3><p class="meta">1 fois</p></div><span class="source">Invocation citée · Bukhari 6369</span></div>
+              <p class="arabic" lang="ar" dir="rtl">اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْهَمِّ وَالْحَزَنِ، وَالْعَجْزِ وَالْكَسَلِ، وَالْبُخْلِ وَالْجُبْنِ، وَضَلَعِ الدَّيْنِ، وَغَلَبَةِ الرِّجَالِ</p>
+              <span class="reading-label">Phonétique</span><p class="phonetic">Allahumma innî a'ûdhu bika minal-hammi wal-hazan, wal-'ajzi wal-kasal, wal-bukhli wal-jubn, wa dala'id-dayn, wa ghalabatir-rijâl.</p>
+              <span class="reading-label">Sens en français</span><p class="translation">« Ô Allah, je cherche refuge auprès de Toi contre le souci et la tristesse, l’incapacité et la paresse, l’avarice et la lâcheté, le poids des dettes et la domination des hommes. »</p>
+              <div class="card-actions"><button class="mini-btn copy" type="button">Copier l’arabe</button></div>
+            </div>
+          </section>
+          <section class="section" data-period="evening">
+            <h3 class="section-heading"><span class="section-num">2</span>Le soir, après Asr ou Maghrib <small class="duration">≈ 7 min</small></h3>
+            <div class="plain-item searchable"><span class="bullet">1</span><p>Al-Fâtiha une fois ; son texte complet figure dans la section du matin.</p></div>
+            <div class="plain-item searchable"><span class="bullet">2</span><p>Al-Ikhlâs, Al-Falaq et An-Nâs, 3 fois chacune ; leurs textes complets figurent dans l’autre routine.</p></div>
+            <div class="card searchable">
+              <div class="card-head"><div><h3>Les six versets de guérison</h3><p class="meta">Récitez chaque verset en entier, une fois, depuis le Mushaf.</p></div><span class="source">Coran 9:14 · 10:57 · 16:69 · 17:82 · 26:80 · 41:44</span></div>
+              <details class="full-text"><summary class="mini-btn">Afficher les six versets en entier</summary>
+                <div class="surah"><span class="reading-label">At-Tawba 9:14</span><p class="arabic" lang="ar" dir="rtl">قَاتِلُوهُمْ يُعَذِّبْهُمُ اللَّهُ بِأَيْدِيكُمْ وَيُخْزِهِمْ وَيَنْصُرْكُمْ عَلَيْهِمْ وَيَشْفِ صُدُورَ قَوْمٍ مُؤْمِنِينَ</p><span class="reading-label">Phonétique</span><p class="phonetic">Qâtilûhum yu'adhdhibhumu Llâhu bi-aydîkum wa yukhzihim wa yansurkum 'alayhim wa yashfi sudûra qawmin mu'minîn.</p><span class="reading-label">Sens en français</span><p class="translation">Combattez-les : Allah les châtiera par vos mains, les couvrira d’ignominie, vous donnera la victoire sur eux et guérira les poitrines d’un peuple croyant.</p></div>
+                <div class="surah"><span class="reading-label">Yûnus 10:57</span><p class="arabic" lang="ar" dir="rtl">يَا أَيُّهَا النَّاسُ قَدْ جَاءَتْكُمْ مَوْعِظَةٌ مِنْ رَبِّكُمْ وَشِفَاءٌ لِمَا فِي الصُّدُورِ وَهُدًى وَرَحْمَةٌ لِلْمُؤْمِنِينَ</p><span class="reading-label">Phonétique</span><p class="phonetic">Yâ ayyuhâ n-nâsu qad jâ'atkum maw'izatun min rabbikum wa shifâ'un limâ fi s-sudûri wa hudan wa rahmatun lil-mu'minîn.</p><span class="reading-label">Sens en français</span><p class="translation">Ô gens ! Une exhortation vous est venue de votre Seigneur, une guérison de ce qui est dans les poitrines, un guide et une miséricorde pour les croyants.</p></div>
+                <div class="surah"><span class="reading-label">An-Nahl 16:69</span><p class="arabic" lang="ar" dir="rtl">ثُمَّ كُلِي مِنْ كُلِّ الثَّمَرَاتِ فَاسْلُكِي سُبُلَ رَبِّكِ ذُلُلًا ۚ يَخْرُجُ مِنْ بُطُونِهَا شَرَابٌ مُخْتَلِفٌ أَلْوَانُهُ فِيهِ شِفَاءٌ لِلنَّاسِ ۗ إِنَّ فِي ذَٰلِكَ لَآيَةً لِقَوْمٍ يَتَفَكَّرُونَ</p><span class="reading-label">Phonétique</span><p class="phonetic">Thumma kulî min kulli th-thamarâti fa-slukî subula rabbiki dhululan. Yakhruju min butûnihâ sharâbun mukhtalifun alwânuhu fîhi shifâ'un li-n-nâs. Inna fî dhâlika la-âyatan li-qawmin yatafakkarûn.</p><span class="reading-label">Sens en français</span><p class="translation">Puis mange de tous les fruits et suis les chemins de ton Seigneur, rendus faciles. De leur ventre sort une boisson aux couleurs variées, dans laquelle il y a une guérison pour les gens. Il y a vraiment là un signe pour des gens qui réfléchissent.</p></div>
+                <div class="surah"><span class="reading-label">Al-Isrâ 17:82</span><p class="arabic" lang="ar" dir="rtl">وَنُنَزِّلُ مِنَ الْقُرْآنِ مَا هُوَ شِفَاءٌ وَرَحْمَةٌ لِلْمُؤْمِنِينَ وَلَا يَزِيدُ الظَّالِمِينَ إِلَّا خَسَارًا</p><span class="reading-label">Phonétique</span><p class="phonetic">Wa nunazzilu mina l-Qur'âni mâ huwa shifâ'un wa rahmatun lil-mu'minîn, wa lâ yazîdu z-zâlimîna illâ khasârâ.</p><span class="reading-label">Sens en français</span><p class="translation">Nous faisons descendre du Coran ce qui est une guérison et une miséricorde pour les croyants. Cependant, cela ne fait qu’accroître la perdition des injustes.</p></div>
+                <div class="surah"><span class="reading-label">Ash-Shu'arâ 26:80</span><p class="arabic" lang="ar" dir="rtl">وَإِذَا مَرِضْتُ فَهُوَ يَشْفِينِ</p><span class="reading-label">Phonétique</span><p class="phonetic">Wa idhâ maridtu fahuwa yashfîn.</p><span class="reading-label">Sens en français</span><p class="translation">Et quand je suis malade, c’est Lui qui me guérit.</p></div>
+                <div class="surah"><span class="reading-label">Fussilat 41:44</span><p class="arabic" lang="ar" dir="rtl">قُلْ هُوَ لِلَّذِينَ آمَنُوا هُدًى وَشِفَاءٌ ۖ وَالَّذِينَ لَا يُؤْمِنُونَ فِي آذَانِهِمْ وَقْرٌ وَهُوَ عَلَيْهِمْ عَمًى ۚ أُولَٰئِكَ يُنَادَوْنَ مِنْ مَكَانٍ بَعِيدٍ</p><span class="reading-label">Phonétique</span><p class="phonetic">Qul huwa lilladhîna âmanû hudan wa shifâ'. Wa-lladhîna lâ yu'minûna fî âdhânihim waqrun wa huwa 'alayhim 'amâ. Ulâ'ika yunâdawna min makânin ba'îd.</p><span class="reading-label">Sens en français</span><p class="translation">Dis : « Pour ceux qui croient, il est un guide et une guérison. » Quant à ceux qui ne croient pas, il y a une surdité dans leurs oreilles et ils sont frappés de cécité. Ceux-là sont appelés d’un lieu lointain.</p></div>
+              </details>
+            </div>
+            <div class="card searchable">
+              <div class="card-head"><div><h3>Invocation de Younous</h3><p class="meta">Coran 21:87 · 3 fois ou davantage</p></div><span class="source">Verset complet</span></div>
+              <p class="arabic" lang="ar" dir="rtl">لَا إِلَٰهَ إِلَّا أَنْتَ سُبْحَانَكَ إِنِّي كُنْتُ مِنَ الظَّالِمِينَ</p>
+              <span class="reading-label">Phonétique</span><p class="phonetic">Lâ ilâha illâ anta, subhânaka innî kuntu mina dh-dhâlimîn.</p>
+              <span class="reading-label">Sens en français</span><p class="translation">« Il n’y a de divinité que Toi. Gloire à Toi. J’ai été parmi les injustes. »</p>
+              <div class="card-actions"><button class="mini-btn copy" type="button">Copier l’arabe</button></div>
+            </div>
+          </section>
+          <section class="section" data-period="bedtime">
+            <h3 class="section-heading"><span class="section-num">3</span>Avant de dormir <small class="duration">≈ 3 min</small></h3>
+            <div class="plain-item searchable"><span class="bullet">1</span><p>Joignez les mains, récitez Al-Ikhlâs, Al-Falaq et An-Nâs, soufflez légèrement dans les paumes, puis passez-les sur tout le corps en commençant par la tête et le visage. Répétez 3 fois. Textes complets dans l’autre routine.</p></div>
+            <div class="plain-item searchable"><span class="bullet">2</span><p>Âyat al-Kursî, une fois. Texte complet dans l’autre routine.</p></div>
+          </section>
+          <section class="section" data-period="as-needed">
+            <h3 class="section-heading"><span class="section-num">4</span>En cas de maladie ou de douleur</h3>
+            <div class="card searchable">
+              <div class="card-head"><div><h3>À réciter en posant la main sur la douleur</h3><p class="meta">« Bismillâh » 3 fois, puis l’invocation 7 fois</p></div><span class="source">Muslim 2202</span></div>
+              <p class="arabic" lang="ar" dir="rtl">بِسْمِ اللَّهِ</p><span class="reading-label">Phonétique</span><p class="phonetic">Bismi Llâh.</p><span class="reading-label">Sens en français</span><p class="translation">« Au nom d’Allah. » (3 fois)</p>
+              <p class="arabic" lang="ar" dir="rtl">أَعُوذُ بِاللَّهِ وَقُدْرَتِهِ مِنْ شَرِّ مَا أَجِدُ وَأُحَاذِرُ</p>
+              <span class="reading-label">Phonétique</span><p class="phonetic">A'ûdhu bi-Llâhi wa qudratihi min sharri mâ ajidu wa uhâdhir.</p>
+              <span class="reading-label">Sens en français</span><p class="translation">« Je cherche protection auprès d’Allah et de Sa puissance contre le mal que je ressens et que je crains. » (7 fois)</p>
+              <div class="card-actions"><button class="mini-btn copy" type="button">Copier l’arabe</button></div>
+            </div>
+            <div class="card searchable">
+              <div class="card-head"><div><h3>Pour soi ou un proche malade</h3><p class="meta">Passez la main droite sur la personne</p></div><span class="source">Invocation citée · Bukhari 5743</span></div>
+              <p class="arabic" lang="ar" dir="rtl">اللَّهُمَّ رَبَّ النَّاسِ، أَذْهِبِ الْبَأْسَ، اشْفِ أَنْتَ الشَّافِي، لَا شِفَاءَ إِلَّا شِفَاؤُكَ، شِفَاءً لَا يُغَادِرُ سَقَمًا</p>
+              <span class="reading-label">Phonétique</span><p class="phonetic">Allahumma Rabban-nâs, adh-hibil-ba's, ichfi anta ach-Châfî, lâ chifâ'a illâ chifâ'uk, chifâ'an lâ yughâdiru saqamâ.</p>
+              <span class="reading-label">Sens en français</span><p class="translation">« Ô Allah, Seigneur des hommes, dissipe le mal et guéris. Tu es le Guérisseur ; il n’y a de guérison que celle que Tu accordes, une guérison qui ne laisse aucune maladie. »</p>
+              <div class="card-actions"><button class="mini-btn copy" type="button">Copier l’arabe</button></div>
+            </div>
+            <div class="card searchable">
+              <div class="card-head"><div><h3>En visitant une personne malade</h3><p class="meta">7 fois</p></div><span class="source">Abou Daoud 3106</span></div>
+              <p class="arabic" lang="ar" dir="rtl">أَسْأَلُ اللَّهَ الْعَظِيمَ رَبَّ الْعَرْشِ الْعَظِيمِ أَنْ يَشْفِيَكَ</p>
+              <span class="reading-label">Phonétique</span><p class="phonetic">As'alu Llâha al-'Azîm, Rabba al-'archi al-'azîm, an yachfiyak.</p>
+              <span class="reading-label">Sens en français</span><p class="translation">« Je demande à Allah l’Immense, Seigneur du Trône immense, de te guérir. »</p>
+              <div class="card-actions"><button class="mini-btn copy" type="button">Copier l’arabe</button></div>
+            </div>
+            <div class="callout searchable"><strong>Selon la routine fournie :</strong> en cas de fièvre, eau fraîche sur le corps ; en cas de tristesse, talbina et invocation de Younous ; pour la gorge et les poumons, costus indien et Al-Fâtiha ; en cas de soupçon de sorcellerie, récitation de 7:117–122, 10:81–82 et 20:69 matin et soir. Ces indications ne remplacent pas un avis médical ; prudence avec les remèdes et les enfants.</div>
+            <div class="card searchable">
+              <div class="card-head"><div><h3>Passages cités pour la roqya</h3><p class="meta">À réciter en entier, matin et soir, selon la routine fournie.</p></div><span class="source">Coran 7:117–122 · 10:81–82 · 20:69</span></div>
+              <details class="full-text"><summary class="mini-btn">Afficher les passages en entier</summary>
+                <div class="surah"><span class="reading-label">Al-A'râf 7:117–122</span><p class="arabic" lang="ar" dir="rtl">وَأَوْحَيْنَا إِلَىٰ مُوسَىٰ أَنْ أَلْقِ عَصَاكَ ۖ فَإِذَا هِيَ تَلْقَفُ مَا يَأْفِكُونَ ۝ فَوَقَعَ الْحَقُّ وَبَطَلَ مَا كَانُوا يَعْمَلُونَ ۝ فَغُلِبُوا هُنَالِكَ وَانْقَلَبُوا صَاغِرِينَ ۝ وَأُلْقِيَ السَّحَرَةُ سَاجِدِينَ ۝ قَالُوا آمَنَّا بِرَبِّ الْعَالَمِينَ ۝ رَبِّ مُوسَىٰ وَهَارُونَ</p><span class="reading-label">Phonétique</span><p class="phonetic">Wa awhaynâ ilâ Mûsâ an alqi 'asâka fa-idhâ hiya talqafu mâ ya'fikûn. Fa-waqa'a l-haqqu wa batala mâ kânû ya'malûn. Fa-ghulibû hunâlika wa-nqalabû sâghirîn. Wa ulqiya s-saharatu sâjidîn. Qâlû âmannâ bi-rabbi l-'âlamîn, rabbi Mûsâ wa Hârûn.</p><span class="reading-label">Sens en français</span><p class="translation">Nous révélâmes à Moïse : « Jette ton bâton. » Et voilà qu’il engloutit ce qu’ils avaient fabriqué. La vérité se manifesta et ce qu’ils faisaient fut vain. Ils furent alors vaincus et humiliés. Les magiciens tombèrent prosternés. Ils dirent : « Nous croyons au Seigneur des mondes, Seigneur de Moïse et d’Aaron. »</p></div>
+                <div class="surah"><span class="reading-label">Yûnus 10:81–82</span><p class="arabic" lang="ar" dir="rtl">فَلَمَّا أَلْقَوْا قَالَ مُوسَىٰ مَا جِئْتُمْ بِهِ السِّحْرُ ۖ إِنَّ اللَّهَ سَيُبْطِلُهُ ۖ إِنَّ اللَّهَ لَا يُصْلِحُ عَمَلَ الْمُفْسِدِينَ ۝ وَيُحِقُّ اللَّهُ الْحَقَّ بِكَلِمَاتِهِ وَلَوْ كَرِهَ الْمُجْرِمُونَ</p><span class="reading-label">Phonétique</span><p class="phonetic">Fa-lammâ alqaw qâla Mûsâ mâ ji'tum bihi s-sihr. Inna Llâha sayubtiluhu. Inna Llâha lâ yuslihu 'amala l-mufsidîn. Wa yuhiqqu Llâhu l-haqqa bi-kalimâtihi wa law kariha l-mujrimûn.</p><span class="reading-label">Sens en français</span><p class="translation">Lorsqu’ils jetèrent, Moïse dit : « Ce que vous avez produit est de la magie. Allah l’annulera. Allah ne fait pas prospérer l’œuvre des corrupteurs. Et Allah, par Ses paroles, confirme la vérité, même si les criminels la détestent. »</p></div>
+                <div class="surah"><span class="reading-label">Tâ-Hâ 20:69</span><p class="arabic" lang="ar" dir="rtl">وَأَلْقِ مَا فِي يَمِينِكَ تَلْقَفْ مَا صَنَعُوا ۖ إِنَّمَا صَنَعُوا كَيْدُ سَاحِرٍ ۖ وَلَا يُفْلِحُ السَّاحِرُ حَيْثُ أَتَىٰ</p><span class="reading-label">Phonétique</span><p class="phonetic">Wa alqi mâ fî yamînika talqaf mâ sana'û. Innamâ sana'û kaydu sâhir. Wa lâ yuflihu s-sâhiru haythu atâ.</p><span class="reading-label">Sens en français</span><p class="translation">« Jette ce qu’il y a dans ta main droite : cela engloutira ce qu’ils ont fabriqué. Ce qu’ils ont fabriqué n’est qu’un artifice de magicien, et le magicien ne réussit pas, où qu’il soit. »</p></div>
+              </details>
+            </div>
+          </section>
+          <section class="section" data-period="other">
+            <h3 class="section-heading">Conseils</h3>
+            <div class="plain-item searchable"><span class="bullet">•</span><p>Faites vos ablutions avant de réciter, si possible, et récitez avec présence et conviction.</p></div>
+            <div class="plain-item searchable"><span class="bullet">•</span><p>La routine d’origine mentionne la récitation sur de l’eau ou de l’huile d’olive comme pratique répandue, sans hadith précis cité pour l’étayer.</p></div>
+            <div class="plain-item searchable"><span class="bullet">•</span><p>La régularité compte : une routine courte et quotidienne vaut mieux qu’une longue séance occasionnelle.</p></div>
+            <div class="plain-item searchable"><span class="bullet">!</span><p>Demandez conseil avant la nigelle, notamment en cas de grossesse ou de traitement. Méfiez-vous des personnes qui proposent des talismans, demandent le nom de votre mère ou réclament des sommes importantes.</p></div>
+          </section>
+        </article>
+        <div id="empty" class="empty">Aucun passage ne correspond à cette recherche.</div>
+      </div>
+
+      <aside class="track" aria-label="Suivi quotidien">
+        <h3>Mon suivi du jour</h3>
+        <p id="today-label"></p>
+        <div class="progress" aria-label="Progression"><span id="progress-bar"></span></div>
+        <div class="checklist" id="daily-checklist"></div>
+        <button class="reset" id="reset-daily" type="button">Réinitialiser le suivi du jour</button>
+        <div class="week">
+          <h3>Sur 7 jours</h3><p>Suivi personnel, enregistré sur cet appareil.</p>
+          <div class="week-grid" id="week-grid"></div>
+        </div>
+        <p class="notice">Les cases cochées sont conservées dans le navigateur. Aucune donnée n’est envoyée.</p>
+      </aside>
+    </div>
+    <footer>Les textes sont présentés à partir des deux routines fournies. Pour l’apprentissage de la prononciation et la vérification des variantes, rapprochez-vous d’une personne qualifiée. La phonétique est un repère et ne remplace pas l’écoute ou l’apprentissage oral.</footer>
+  </main>
+
+  <script>
+    (function () {
+      "use strict";
+      var tabs = Array.prototype.slice.call(document.querySelectorAll(".tab"));
+      var panels = Array.prototype.slice.call(document.querySelectorAll(".routine-panel"));
+      var search = document.getElementById("search");
+      var hidePhonetic = document.getElementById("hide-phonetic");
+      var hideTranslation = document.getElementById("hide-translation");
+      var arabicSize = 2;
+      var activePeriod = "all";
+
+      function applyDisplaySettings() {
+        document.body.classList.toggle("hide-phonetic", hidePhonetic.checked);
+        document.body.classList.toggle("hide-translation", hideTranslation.checked);
+      }
+      function restoreDisplaySettings() {
+        try {
+          var settings = JSON.parse(localStorage.getItem("routine-display-settings") || "{}");
+          hidePhonetic.checked = Boolean(settings.hidePhonetic);
+          hideTranslation.checked = Boolean(settings.hideTranslation);
+        } catch (error) {
+          document.querySelector(".notice").textContent = "Les préférences d’affichage n’ont pas pu être chargées ; les textes restent visibles.";
+        }
+        applyDisplaySettings();
+      }
+      function saveDisplaySettings() {
+        applyDisplaySettings();
+        try {
+          localStorage.setItem("routine-display-settings", JSON.stringify({
+            hidePhonetic: hidePhonetic.checked,
+            hideTranslation: hideTranslation.checked
+          }));
+        } catch (error) {
+          document.querySelector(".notice").textContent = "Les préférences d’affichage ne peuvent pas être conservées dans ce navigateur.";
+        }
+      }
+      hidePhonetic.addEventListener("change", saveDisplaySettings);
+      hideTranslation.addEventListener("change", saveDisplaySettings);
+
+      function activate(id) {
+        tabs.forEach(function (tab) {
+          var selected = tab.getAttribute("aria-controls") === id;
+          tab.setAttribute("aria-selected", String(selected));
+        });
+        panels.forEach(function (panel) {
+          panel.classList.toggle("hidden", panel.id !== id);
+        });
+        search.value = "";
+        activePeriod = "all";
+        updatePeriodButtons();
+        filterCards("");
+        renderChecklist();
+      }
+      tabs.forEach(function (tab) {
+        tab.addEventListener("click", function () { activate(tab.getAttribute("aria-controls")); });
+      });
+      document.getElementById("smaller").addEventListener("click", function () {
+        arabicSize = Math.max(1.4, arabicSize - 0.15);
+        document.documentElement.style.setProperty("--arabic-size", arabicSize + "rem");
+      });
+      document.getElementById("larger").addEventListener("click", function () {
+        arabicSize = Math.min(3.2, arabicSize + 0.15);
+        document.documentElement.style.setProperty("--arabic-size", arabicSize + "rem");
+      });
+      document.getElementById("print").addEventListener("click", function () { window.print(); });
+
+      function updatePeriodButtons() {
+        var panel = document.querySelector(".routine-panel:not(.hidden)");
+        var buttons = Array.prototype.slice.call(panel.querySelectorAll("[data-period-filter]"));
+        buttons.forEach(function (button) {
+          button.setAttribute("aria-pressed", String(button.getAttribute("data-period-filter") === activePeriod));
+        });
+      }
+      function filterCards(query) {
+        var panel = document.querySelector(".routine-panel:not(.hidden)");
+        var cards = Array.prototype.slice.call(panel.querySelectorAll(".searchable"));
+        cards.forEach(function (card) {
+          var match = !query || card.textContent.toLocaleLowerCase("fr").indexOf(query.toLocaleLowerCase("fr")) !== -1;
+          card.classList.toggle("hidden", !match);
+        });
+        var sections = Array.prototype.slice.call(panel.querySelectorAll(".section"));
+        var visibleSections = 0;
+        var visibleCards = 0;
+        sections.forEach(function (section) {
+          var periodMatches = activePeriod === "all" || section.getAttribute("data-period") === activePeriod;
+          var hasMatches = !query || section.querySelector(".searchable:not(.hidden)") !== null;
+          var isVisible = periodMatches && hasMatches;
+          section.classList.toggle("hidden", !isVisible);
+          if (isVisible) {
+            visibleSections++;
+            visibleCards += section.querySelectorAll(".searchable:not(.hidden)").length;
+          }
+        });
+        var status = panel.querySelector(".period-status");
+        var activeButton = panel.querySelector('[data-period-filter="' + activePeriod + '"]');
+        var periodName = activeButton ? activeButton.textContent.trim() : "Tout afficher";
+        status.textContent = activePeriod === "all"
+          ? visibleSections + (visibleSections === 1 ? " période affichée" : " périodes affichées")
+          : periodName + " · " + visibleSections + (visibleSections === 1 ? " période" : " périodes");
+        document.getElementById("empty").style.display = query && visibleCards === 0 ? "block" : "none";
+      }
+      search.addEventListener("input", function () { filterCards(search.value.trim()); });
+      document.addEventListener("click", function (event) {
+        var periodButton = event.target.closest("[data-period-filter]");
+        if (!periodButton) return;
+        var panel = periodButton.closest(".routine-panel");
+        if (!panel || panel.classList.contains("hidden")) return;
+        activePeriod = periodButton.getAttribute("data-period-filter");
+        updatePeriodButtons();
+        filterCards(search.value.trim());
+      });
+
+      document.addEventListener("click", function (event) {
+        var button = event.target.closest(".copy");
+        if (!button) return;
+        var card = button.closest(".card");
+        var arabic = Array.prototype.slice.call(card.querySelectorAll(".arabic")).map(function (el) { return el.textContent; }).join("\n");
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(arabic).then(function () {
+            button.textContent = "Copié !";
+            window.setTimeout(function () { button.textContent = "Copier l’arabe"; }, 1400);
+          }).catch(function () {
+            button.textContent = "Copie indisponible";
+            window.setTimeout(function () { button.textContent = "Copier l’arabe"; }, 1800);
+          });
+        } else {
+          var field = document.createElement("textarea");
+          field.value = arabic;
+          field.style.position = "fixed";
+          field.style.opacity = "0";
+          document.body.appendChild(field);
+          field.select();
+          var copied = document.execCommand("copy");
+          field.remove();
+          button.textContent = copied ? "Copié !" : "Copie indisponible";
+          window.setTimeout(function () { button.textContent = "Copier l’arabe"; }, 1400);
+        }
+      });
+
+      var today = new Date();
+      var dateKey = today.getFullYear() + "-" + String(today.getMonth() + 1).padStart(2, "0") + "-" + String(today.getDate()).padStart(2, "0");
+      var weekday = new Intl.DateTimeFormat("fr-FR", { weekday: "long" }).format(today);
+      var dateLabel = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "long" }).format(today);
+      document.getElementById("today-label").textContent = weekday.charAt(0).toLocaleUpperCase("fr") + weekday.slice(1) + " · " + dateLabel;
+
+      var storageWarningShown = false;
+      function warnStorage() {
+        if (storageWarningShown) return;
+        storageWarningShown = true;
+        document.querySelector(".notice").textContent = "Le navigateur n’a pas pu lire ou enregistrer le suivi ; les cases ne seront pas conservées.";
+      }
+      function getState(key) {
+        try {
+          var value = JSON.parse(localStorage.getItem(key) || "{}");
+          return value && typeof value === "object" ? value : {};
+        } catch (error) {
+          warnStorage();
+          return {};
+        }
+      }
+      function saveState(key, value) {
+        try { localStorage.setItem(key, JSON.stringify(value)); }
+        catch (error) { warnStorage(); }
+      }
+      function renderChecklist() {
+        var current = document.querySelector(".routine-panel:not(.hidden)");
+        var isFils = current.id === "routine-fils";
+        var labels = isFils
+          ? ["Matin", "Après une prière", "Soir", "Avant de dormir", "Au besoin"]
+          : ["Matin", "Après une prière (facultatif)", "Soir", "Avant de dormir", "Remèdes"];
+        var key = "routine-" + current.id + "-" + dateKey;
+        var state = getState(key);
+        var holder = document.getElementById("daily-checklist");
+        holder.innerHTML = "";
+        labels.forEach(function (label, index) {
+          var row = document.createElement("label");
+          row.className = "check-row";
+          var checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.checked = Boolean(state[index]);
+          var text = document.createElement("span");
+          text.textContent = label;
+          checkbox.addEventListener("change", function () {
+            state[index] = checkbox.checked;
+            saveState(key, state);
+            updateProgress();
+          });
+          row.appendChild(checkbox);
+          row.appendChild(text);
+          holder.appendChild(row);
+        });
+        updateProgress();
+      }
+      function updateProgress() {
+        var inputs = Array.prototype.slice.call(document.querySelectorAll("#daily-checklist input"));
+        var done = inputs.filter(function (input) { return input.checked; }).length;
+        document.getElementById("progress-bar").style.width = (inputs.length ? done / inputs.length * 100 : 0) + "%";
+      }
+      document.getElementById("reset-daily").addEventListener("click", function () {
+        var panel = document.querySelector(".routine-panel:not(.hidden)");
+        saveState("routine-" + panel.id + "-" + dateKey, {});
+        renderChecklist();
+      });
+      function renderWeek() {
+        var holder = document.getElementById("week-grid");
+        var names = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
+        var mondayIndex = (today.getDay() + 6) % 7;
+        var monday = new Date(today);
+        monday.setDate(today.getDate() - mondayIndex);
+        names.forEach(function (name, index) {
+          var day = new Date(monday);
+          day.setDate(monday.getDate() + index);
+          var key = "routine-week-" + day.getFullYear() + "-" + String(day.getMonth() + 1).padStart(2, "0") + "-" + String(day.getDate()).padStart(2, "0");
+          var wrapper = document.createElement("label");
+          wrapper.className = "day";
+          var title = document.createElement("span");
+          title.textContent = name;
+          var box = document.createElement("input");
+          box.type = "checkbox";
+          box.setAttribute("aria-label", name);
+          box.checked = Boolean(getState(key).done);
+          box.addEventListener("change", function () { saveState(key, { done: box.checked }); });
+          wrapper.appendChild(title);
+          wrapper.appendChild(box);
+          holder.appendChild(wrapper);
+        });
+      }
+      renderChecklist();
+      renderWeek();
+      restoreDisplaySettings();
+      updatePeriodButtons();
+      filterCards("");
+    }());
+  </script>
+</body>
+</html>
